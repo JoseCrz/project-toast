@@ -45,4 +45,57 @@ function Toast({ id, variant, onRequestDismiss, children }) {
   );
 }
 
+const ToastContext = React.createContext(null);
+
+export function ToastProvider({ children }) {
+  const [toasts, setToasts] = React.useState([]);
+
+  const addToast = React.useCallback((message, variant) => {
+    setToasts((prevToasts) => {
+      const newToasts = [
+        ...prevToasts,
+        {
+          id: window.crypto.randomUUID(),
+          message,
+          variant,
+        },
+      ];
+
+      return newToasts;
+    });
+  }, []);
+
+  const removeToast = React.useCallback((toastId) => {
+    setToasts((prevToasts) => {
+      const newToast = prevToasts.filter(
+        (prevToast) => prevToast.id !== toastId
+      );
+
+      return newToast;
+    });
+  }, []);
+
+  return (
+    <ToastContext.Provider
+      value={{
+        toasts,
+        addToast,
+        removeToast,
+      }}
+    >
+      {children}
+    </ToastContext.Provider>
+  );
+}
+
+export function useToast() {
+  const context = React.useContext(ToastContext);
+
+  if (!context) {
+    throw new Error("`useToast` must be used withing `<ToastProvider />`");
+  }
+
+  return context;
+}
+
 export default Toast;

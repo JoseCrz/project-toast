@@ -1,48 +1,31 @@
 import React, { useEffect, useState } from "react";
 
 import Button from "../Button";
-
+import { useToast } from "../Toast";
 import styles from "./ToastPlayground.module.css";
 import ToastShelf from "../ToastShelf";
 
 const VARIANT_OPTIONS = ["notice", "warning", "success", "error"];
 
 function ToastPlayground() {
+  const { addToast } = useToast();
   const [message, setMessage] = useState("");
   const [selectedVariantOption, setSelectedVariantOption] = useState(
     VARIANT_OPTIONS[0]
   );
 
-  const [toasts, setToasts] = useState([]);
-
-  const addToast = React.useCallback(() => {
-    if (!message) return;
-
-    setToasts((prevToasts) => {
-      const newToasts = [
-        ...prevToasts,
-        {
-          id: window.crypto.randomUUID(),
-          message,
-          variant: selectedVariantOption,
-        },
-      ];
-
-      return newToasts;
-    });
-
-    setMessage("");
-  }, [message, selectedVariantOption]);
-
   useEffect(() => {
     function handleKeyPress(event) {
-      if (event.key === "Enter") addToast();
+      if (event.key === "Enter") {
+        addToast(message, selectedVariantOption);
+        setMessage("");
+      }
     }
 
     window.addEventListener("keypress", handleKeyPress);
 
     return () => window.removeEventListener("keypress", handleKeyPress);
-  }, [addToast]);
+  }, [addToast, message, selectedVariantOption]);
 
   function resetPlayground() {
     setMessage("");
@@ -55,18 +38,7 @@ function ToastPlayground() {
         <img alt="Cute toast mascot" src="/toast.png" />
         <h1>Toast Playground</h1>
       </header>
-      <ToastShelf
-        toasts={toasts}
-        onRequestToastDismiss={(toastId) => {
-          setToasts((prevToasts) => {
-            const newToast = prevToasts.filter(
-              (prevToast) => prevToast.id !== toastId
-            );
-
-            return newToast;
-          });
-        }}
-      />
+      <ToastShelf />
       <div className={styles.controlsWrapper}>
         <div className={styles.row}>
           <label
