@@ -25,9 +25,7 @@ const stylesMap = {
   error: styles.error,
 };
 
-function Toast({ content, variant, open, onRequestDismiss }) {
-  if (!open) return null;
-
+function Toast({ id, variant, onRequestDismiss, children }) {
   const Icon = ICONS_BY_VARIANT[variant];
   const variantStyle = stylesMap[variant];
   return (
@@ -35,8 +33,11 @@ function Toast({ content, variant, open, onRequestDismiss }) {
       <div className={styles.iconContainer}>
         <Icon size={24} />
       </div>
-      <p className={styles.content}>{content}</p>
-      <button className={styles.closeButton} onClick={onRequestDismiss}>
+      <p className={styles.content}>{children}</p>
+      <button
+        className={styles.closeButton}
+        onClick={() => onRequestDismiss(id)}
+      >
         <X size={24} />
         <VisuallyHidden>Dismiss message</VisuallyHidden>
       </button>
